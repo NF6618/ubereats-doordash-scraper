@@ -1,0 +1,9 @@
+# Example links.txt file for Uber Eats & DoorDash Scraper
+# Each line should be a full URL to an Uber Eats or DoorDash restaurant store page.
+# Lines starting with '#' or empty lines are ignored.
+
+# Example Uber Eats link:
+# https://www.ubereats.com/store/starbucks-123-main-st/abc123def
+
+# Example DoorDash link:
+# https://www.doordash.com/store/mcdonalds-tampa-12345/

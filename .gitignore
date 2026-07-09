@@ -1,0 +1,20 @@
+# Ignore output directory contents
+output/
+output/*
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Playwright / IDE
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.idea/
