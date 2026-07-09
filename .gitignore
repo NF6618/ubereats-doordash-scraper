@@ -1,6 +1,7 @@
-# Ignore output directory contents
+# Ignore output directory contents and local link files
 output/
 output/*
+links.txt
 
 # Python bytecode and caches
 __pycache__/

@@ -123,7 +123,10 @@ def scrape_doordash(page: Page, url: str, timeout: int = 60000) -> Tuple[Dict, L
     """Scrape store metadata and menu items from a DoorDash store URL."""
     print(f"Loading DoorDash page: {url}")
     page.goto(url, wait_until="domcontentloaded", timeout=timeout)
-    page.wait_for_timeout(5000)
+    try:
+        page.wait_for_selector('script[type="application/ld+json"]', state="attached", timeout=15000)
+    except Exception:
+        page.wait_for_timeout(4000)
     
     html = page.content()
     soup = BeautifulSoup(html, "html.parser")
@@ -265,7 +268,10 @@ def scrape_ubereats(page: Page, url: str, timeout: int = 60000) -> Tuple[Dict, L
     """Scrape store metadata and menu items from an Uber Eats store URL."""
     print(f"Loading Uber Eats page: {url}")
     page.goto(url, wait_until="domcontentloaded", timeout=timeout)
-    page.wait_for_timeout(5000)
+    try:
+        page.wait_for_selector('script[type="application/ld+json"]', state="attached", timeout=15000)
+    except Exception:
+        page.wait_for_timeout(4000)
     
     html = page.content()
     soup = BeautifulSoup(html, "html.parser")
@@ -559,6 +565,7 @@ def scrape_url(
     formats: Union[List[str], Tuple[str, ...]] = ("csv", "json"),
     download_images: bool = True,
     image_dir: str = "images",
+    headless: bool = False,
     timeout: int = 60000
 ) -> Optional[Dict]:
     """
@@ -578,11 +585,10 @@ def scrape_url(
             managed_browser = True
             p_instance = sync_playwright().start()
             browser = p_instance.chromium.launch(
-                headless=True,
+                headless=headless,
                 args=["--disable-blink-features=AutomationControlled"]
             )
             context = browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 800}
             )
             page = context.new_page()
@@ -596,8 +602,29 @@ def scrape_url(
             return None
 
         if not info or not menu:
-            print(f"Warning: Could not extract sufficient store metadata or menu items from {url}")
-            return None
+            if headless and managed_browser:
+                print(f"Notice: Anti-bot challenge or incomplete load detected in headless mode for {url}. Automatically retrying with visible UI (headless=False)...")
+                try:
+                    if browser:
+                        browser.close()
+                    browser = p_instance.chromium.launch(
+                        headless=False,
+                        args=["--disable-blink-features=AutomationControlled"]
+                    )
+                    context = browser.new_context(
+                        viewport={"width": 1280, "height": 800}
+                    )
+                    page = context.new_page()
+                    if "doordash.com" in url_lower:
+                        info, menu = scrape_doordash(page, url, timeout=timeout)
+                    elif "ubereats.com" in url_lower:
+                        info, menu = scrape_ubereats(page, url, timeout=timeout)
+                except Exception as retry_e:
+                    print(f"Warning: Retry failed: {retry_e}")
+
+            if not info or not menu:
+                print(f"Warning: Could not extract sufficient store metadata or menu items from {url}")
+                return None
 
         result = save_store_data(
             store_slug=store_slug,
@@ -629,7 +656,7 @@ def scrape_urls(
     formats: Union[List[str], Tuple[str, ...]] = ("csv", "json"),
     download_images: bool = True,
     image_dir: str = "images",
-    headless: bool = True,
+    headless: bool = False,
     timeout: int = 60000
 ) -> List[Dict]:
     """
@@ -654,7 +681,6 @@ def scrape_urls(
             args=["--disable-blink-features=AutomationControlled"]
         )
         context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             viewport={"width": 1280, "height": 800}
         )
         page = context.new_page()
@@ -667,8 +693,21 @@ def scrape_urls(
                 formats=formats,
                 download_images=download_images,
                 image_dir=image_dir,
+                headless=headless,
                 timeout=timeout
             )
+            if not res and headless:
+                print(f"Notice: Retrying {url} with visible UI (headless=False)...")
+                res = scrape_url(
+                    url=url,
+                    page=None,
+                    output_dir=output_dir,
+                    formats=formats,
+                    download_images=download_images,
+                    image_dir=image_dir,
+                    headless=False,
+                    timeout=timeout
+                )
             if res:
                 results.append(res)
 
@@ -727,14 +766,14 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         "--headless",
         dest="headless",
         action="store_true",
-        default=True,
-        help="Run browser in headless mode (default: True)."
+        default=False,
+        help="Run browser in headless mode."
     )
     parser.add_argument(
         "--no-headless",
         dest="headless",
         action="store_false",
-        help="Run browser with visible UI."
+        help="Run browser with visible UI (default: False)."
     )
     parser.add_argument(
         "--timeout",
