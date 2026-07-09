@@ -19,6 +19,34 @@ A powerful, highly modular **Python library and Command-Line Interface (CLI)** f
 
 ---
 
+## What Information is Scraped
+
+For each restaurant store URL, the scraper extracts detailed metadata about the store as well as every item in its menu catalog:
+
+### 1. Store Information (`info.csv` / `info.json`)
+
+| Field | Description | Example |
+| :--- | :--- | :--- |
+| **Restaurant Name** | Official business name of the store | `Starbucks` |
+| **Address** | Full physical street address, city, region, and postal code | `123 Main St, Tampa, FL 33602` |
+| **Average Rating** | Aggregate customer rating score | `4.8` |
+| **Review Count** | Total number of customer reviews or ratings | `500` |
+| **Hours of Operation** | Weekly operating schedule by day | `Mo-Su: 06:00 - 21:00` |
+| **Source URL** | The canonical store URL that was scraped | `https://www.ubereats.com/store/...` |
+
+### 2. Menu Items (`menu.csv` / `menu.json`)
+
+| Field | Description | Example |
+| :--- | :--- | :--- |
+| **Category / Section** | Menu section header where the item is listed | `Espresso Beverages` |
+| **Item Name** | Product title | `Caramel Macchiato` |
+| **Item Description** | Detailed description or list of ingredients | `Freshly steamed milk with vanilla-flavored syrup...` |
+| **Item Price** | Formatted price string | `$5.45` |
+| **Item Image URL** | Remote CDN link to the item photo | `https://tb-static.uber.com/.../image.jpg` |
+| **Local Image Path** | Relative filesystem path to the downloaded image file | `images/caramel_macchiato.jpg` |
+
+---
+
 ## Installation
 
 ### 1. Clone the repository & install dependencies
