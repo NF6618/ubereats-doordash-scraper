@@ -1,10 +1,10 @@
-# Uber Eats & DoorDash Scraper 🍔🥤
+# Uber Eats & DoorDash Scraper
 
 A powerful, highly modular **Python library and Command-Line Interface (CLI)** for scraping structured restaurant metadata, menus, prices, and product images from **Uber Eats** and **DoorDash** store pages using headless Chromium via [Playwright](https://playwright.dev/python/).
 
 ---
 
-## ✨ Features
+## Features
 
 - **Dual Platform Support**: Seamlessly scrapes both **Uber Eats** and **DoorDash** restaurant store URLs.
 - **Batch Scraping via `links.txt`**: Supply input URLs either directly via the CLI or from a newline-separated file (e.g., `links.txt`).
@@ -19,7 +19,7 @@ A powerful, highly modular **Python library and Command-Line Interface (CLI)** f
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### 1. Clone the repository & install dependencies
 
@@ -39,7 +39,7 @@ playwright install chromium
 
 ---
 
-## 🚀 CLI Interface & Usage
+## CLI Interface & Usage
 
 ### Command-Line Arguments
 
@@ -89,7 +89,7 @@ python scraper.py -i links.txt -o my_data_exports --format csv json --image-dir 
 
 ---
 
-## 📂 Output Structure & Data Formats
+## Output Structure & Data Formats
 
 When you scrape a store, a dedicated folder named after the store slug is created inside the output directory:
 
@@ -146,7 +146,7 @@ output/
 
 ---
 
-## 🐍 Using as a Python Library
+## Using as a Python Library
 
 You can easily import `scraper.py` into your own Python projects:
 
@@ -185,7 +185,7 @@ store_result = scrape_url(
 
 ---
 
-## 🔒 Version Control & Output Ignoring
+## Version Control & Output Ignoring
 
 A `.gitignore` file is included to ensure that generated files inside the `output/` directory and downloaded media are not accidentally committed to git:
 
